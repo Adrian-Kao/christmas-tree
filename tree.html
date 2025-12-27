@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Magical Glow Sc - Christmas Card</title>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@700&family=Noto+Sans+TC:wght@300;500;700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+
+    <style>
+         :root {
+            --primary-red: #d4143a;
+            --dark-red: #9b0a24;
+            --gold: #ffd700;
+            --ivory: #fffdf9;
+        }
+        
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: #05070f;
+            font-family: 'Noto Sans TC', sans-serif;
+        }
+        
+        #ui {
+            position: fixed;
+            left: 20px;
+            top: 20px;
+            z-index: 10;
+            color: #fff;
+            font-size: 13px;
+            line-height: 1.6;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 16px;
+            border-radius: 15px;
+            width: 360px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transition: opacity 1s;
+        }
+        
+        #ui.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        #ui strong {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--gold);
+            font-size: 16px;
+            font-family: 'Playfair Display', serif;
+        }
+        
+        #debug {
+            margin-top: 10px;
+            color: rgba(255, 255, 255, 0.4);
+            font-family: monospace;
+            font-size: 11px;
+            white-space: pre-line;
+        }
+        
+        #video {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            z-index: 10;
+            width: 200px;
+            height: 150px;
+            border-radius: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            background: #000;
+            transform: scaleX(-1);
+            object-fit: cover;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+            transition: opacity 1s;
+        }
+        
+        #video.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        #loading,
+        #tapToStart {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            background: #050505;
+            z-index: 200;
+            text-align: center;
+        }
+        
+        #btnStart {
+            margin-top: 20px;
+            padding: 12px 30px;
+            border-radius: 50px;
+            border: none;
+            background: var(--primary-red);
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(212, 20, 58, 0.4);
+        }
+        
+        #cardWrap {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.82);
+            backdrop-filter: blur(12px);
+            padding: 20px;
+        }
+        
+        #cardWrap.noBlur {
+            backdrop-filter: none !important;
+            background: rgba(0, 0, 0, 0.88) !important;
+        }
+        
+        #card {
+            width: min(850px, 94vw);
+            max-height: 85vh;
+            border-radius: 24px;
+            position: relative;
+            background: var(--ivory);
+            border: 8px solid #fff;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            animation: slideUp 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px) scale(0.9);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+        
+        #cardHeader {
+            padding: 25px 40px;
+            background: #fff;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .ribbon {
+            font-family: 'Mountains of Christmas', cursive;
+            font-size: 32px;
+            background: linear-gradient(135deg, var(--primary-red), var(--dark-red));
+            color: #fff;
+            padding: 8px 30px;
+            border-radius: 4px;
+            position: relative;
+            transform: rotate(-2deg);
+            box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 50px;
+            border: 1px solid var(--primary-red);
+            cursor: pointer;
+            background: transparent;
+            color: var(--primary-red);
+            font-weight: 500;
+            transition: .3s;
+            margin-left: 8px;
+        }
+        
+        .btn:hover {
+            background: var(--primary-red);
+            color: #fff;
+        }
+        
+        #btnClose {
+            border-color: #999;
+            color: #666;
+        }
+        
+        #cardBody {
+            padding: 40px;
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 30px;
+            overflow-y: auto;
+            background-image: radial-gradient(#e5e5e5 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        
+        @media(max-width:768px) {
+            #cardBody {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .panel h3 {
+            font-family: 'Playfair Display', serif;
+            border-bottom: 2px solid var(--gold);
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        
+        .message {
+            font-size: 18px;
+            line-height: 1.8;
+            color: #444;
+            font-style: italic;
+            white-space: pre-line;
+        }
+        
+        .mediaBox {
+            background: #fff;
+            padding: 15px 15px 40px 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            transform: rotate(2deg);
+            border: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 250px;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .mediaBox img,
+        .mediaBox video {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #eee;
+            display: block;
+        }
+        
+        .mediaBox audio {
+            width: 100%;
+        }
+        
+        .hint {
+            color: #999;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+    </style>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.3/p5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/hands.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <div id="loading">✨ 聖誕魔法加載中... ✨</div>
+
+    <div id="tapToStart" style="display:none;">
+        <div>
+            <p>請點擊按鈕開啟相機，進入魔法聖誕世界</p>
+            <button id="btnStart">啟動相機</button>
+        </div>
+    </div>
+
+    <div id="ui">
+        <strong>Crystal Christmas</strong>
+        <div>• 旋轉：左右移動手掌</div>
+        <div>• 觸發：握拳（Fist）</div>
+        <div>• 第 1 次永遠讀 01、第 2 次讀 02…（固定順序）</div>
+        <div id="debug">Initializing...</div>
+    </div>
+
+    <video id="video" playsinline autoplay muted></video>
+
+    <div id="cardWrap">
+        <div id="card">
+            <div id="cardHeader">
+                <div class="ribbon" id="cardTitle">Merry Christmas</div>
+                <div>
+                    <button class="btn" id="btnUpload">上傳回憶（覆蓋此卡）</button>
+                    <button class="btn" id="btnClose">關閉</button>
+                </div>
+            </div>
+            <div id="cardBody">
+                <div class="panel">
+                    <h3>祝福訊息</h3>
+                    <div class="message" id="cardMessage"></div>
+                    <div class="hint">預設讀取：<code>assets/memories/01.txt</code>（需用 Live Server）</div>
+                </div>
+                <div class="panel">
+                    <h3>影音回憶</h3>
+                    <div class="mediaBox" id="cardMediaBox"></div>
+                    <div class="hint">預設讀取：<code>assets/memories/01.png</code> / <code>01.mp3</code></div>
+                </div>
+            </div>
+        </div>
+        <input id="fileInput" type="file" style="display:none" accept=".txt,image/*,video/*,audio/*" />
+    </div>
+
+    <script>
+        /* ======================
+                CORE CONFIG
+            ====================== */
+        const MEM_BASE = "assets/memories";
+        const CARD_COUNT = 16;
+
+        // 雪花：初始 120，告白模式加到 1500
+        const INITIAL_SNOW = 120;
+        const TARGET_SNOW = 1500;
+        const SNOW_ADD_PER_FRAME = 18; // 告白模式下每幀補幾顆（越大越「爆雪」）
+
+        // 觸發節奏（不吃 FPS）
+        const FOCUS_INTERVAL_MS = 1000; // 每 1 秒換一顆彩球 focus
+        const TRIGGER_COOLDOWN_MS = 300; // 握拳觸發冷卻（覺得久就降到 150~250）
+
+        // 彩球特寫倍率（A）
+        const ORNAMENT_CINE_SPEED = 1.5;
+
+        // 告白文字
+        const CONFESS_LINE1 = "我喜歡妳";
+        const CONFESS_LINE2 = "可以當妳的男朋友嗎?";
+
+        // 文字取樣密度（越小越細、點越多）
+        const TEXT_SAMPLE_STEP = 6;
+
+        /* ======================
+            STATE
+        ====================== */
+        let cardOpen = false;
+
+        // 卡片固定順序游標：0->01, 1->02... 15->16
+        let cardCursor = 0;
+
+        // 覆蓋資料（同你之前版本）
+        const overridesByKey = new Map();
+        let currentCardKey = null;
+
+        // 雪花 + 文字點位
+        let snowflakes = [];
+        let textPoints = [];
+        let confessionPrepared = false;
+
+        // 告白模式
+        let isConfessionMode = false;
+        let treeYOffset = 0;
+
+        // Tree particles / ornaments
+        let particles = [];
+        let ornaments = [];
+        let focusIndex = 0;
+        let activeOrnament = null;
+        let lastTriggeredOrnament = null;
+
+        // Camera / rotation
+        let camY = 0,
+            camZ = 850;
+        let rotY = 0,
+            targetRotY = 0;
+
+        // Timing
+        let lastFocusSwitchMs = 0;
+        let lastTriggerMs = -999999;
+
+        // MediaPipe Hands
+        let hands = null;
+        let camStream = null;
+        let handCount = 0;
+
+        let armed = false;
+        let fistNow = false;
+        let fistPrev = false;
+
+        // hand loop control (requestAnimationFrame)
+        let loopRunning = false;
+        let handRafId = null;
+        let handInFlight = false;
+
+        // cache
+        const txtCache = new Map();
+
+        function $(id) {
+            return document.getElementById(id);
+        }
+
+        function pad2(n) {
+            return String(n).padStart(2, "0");
+        }
+
+        function getMemoryAssetsByOrder(orderIndex) {
+            const key = pad2((orderIndex % CARD_COUNT) + 1);
+            return {
+                key,
+                txt: `${MEM_BASE}/${key}.txt`,
+                img: `${MEM_BASE}/${key}.png`,
+                audio: `${MEM_BASE}/${key}.mp3`,
+            };
+        }
+
+        async function loadTxt(url) {
+            if (txtCache.has(url)) return txtCache.get(url);
+            const res = await fetch(url, {
+                cache: "no-store"
+            });
+            if (!res.ok) throw new Error(`TXT load failed: ${res.status}`);
+            const text = await res.text();
+            txtCache.set(url, text);
+            return text;
+        }
+
+        function escapeToHtml(text) {
+            return text
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll("\n", "<br>");
+        }
+
+        /* ======================
+            HAND LOOP
+        ====================== */
+        function startHandLoop() {
+            const videoElement = $("video");
+            stopHandLoop();
+            loopRunning = true;
+
+            const tick = async() => {
+                if (!loopRunning) return;
+
+                // 告白模式就不再做手勢辨識（省資源，也避免誤觸）
+                if (!cardOpen && !isConfessionMode && hands && videoElement && videoElement.readyState >= 2 && !handInFlight) {
+                    handInFlight = true;
+                    try {
+                        await hands.send({
+                            image: videoElement
+                        });
+                    } catch (e) {
+                        // ignore
+                    } finally {
+                        handInFlight = false;
+                    }
+                }
+
+                handRafId = requestAnimationFrame(tick);
+            };
+
+            handRafId = requestAnimationFrame(tick);
+        }
+
+        function stopHandLoop() {
+            loopRunning = false;
+            handInFlight = false;
+            if (handRafId) cancelAnimationFrame(handRafId);
+            handRafId = null;
+        }
+
+        function pauseHandTrackingForCard() {
+            cardOpen = true;
+            $("cardWrap").classList.add("noBlur");
+            stopHandLoop();
+
+            // reset gesture state to avoid instant retrigger after close
+            fistNow = false;
+            fistPrev = false;
+
+            noLoop();
+        }
+
+        function resumeHandTrackingAfterCard() {
+            cardOpen = false;
+            $("cardWrap").classList.remove("noBlur");
+            loop();
+
+            if (hands && !isConfessionMode) {
+                startHandLoop();
+            }
+        }
+
+        /* ======================
+            FIST DETECTION
+        ====================== */
+        function dist2(a, b) {
+            const dx = a.x - b.x;
+            const dy = a.y - b.y;
+            return dx * dx + dy * dy;
+        }
+
+        function isFist(lm) {
+            const wrist = lm[0];
+
+            const idxTip = lm[8],
+                idxMcp = lm[5];
+            const midTip = lm[12],
+                midMcp = lm[9];
+            const ringTip = lm[16],
+                ringMcp = lm[13];
+            const pinkTip = lm[20],
+                pinkMcp = lm[17];
+
+            const idxFold = dist2(idxTip, wrist) < dist2(idxMcp, wrist) * 0.92;
+            const midFold = dist2(midTip, wrist) < dist2(midMcp, wrist) * 0.92;
+            const ringFold = dist2(ringTip, wrist) < dist2(ringMcp, wrist) * 0.92;
+            const pinkFold = dist2(pinkTip, wrist) < dist2(pinkMcp, wrist) * 0.92;
+
+            const foldedCount = [idxFold, midFold, ringFold, pinkFold].filter(Boolean).length;
+            return foldedCount >= 3;
+        }
+
+        /* ======================
+            CONFESSION TEXT POINTS
+        ====================== */
+        function prepareConfessionTextPoints() {
+            // 只做一次
+            if (confessionPrepared) return;
+            confessionPrepared = true;
+
+            textPoints = [];
+
+            // 用 offscreen graphics 畫字，再抽樣白色像素
+            const pg = createGraphics(1000, 520);
+            pg.pixelDensity(1);
+            pg.background(0);
+            pg.fill(255);
+            pg.noStroke();
+            pg.textAlign(CENTER, CENTER);
+
+            // 若系統/網頁已載入 Noto Sans TC，這裡可直接用字體名稱
+            pg.textFont("Noto Sans TC");
+
+            pg.textSize(94);
+            pg.text(CONFESS_LINE1, 500, 170);
+
+            pg.textSize(70);
+            pg.text(CONFESS_LINE2, 500, 350);
+
+            pg.loadPixels();
+            for (let y = 0; y < pg.height; y += TEXT_SAMPLE_STEP) {
+                for (let x = 0; x < pg.width; x += TEXT_SAMPLE_STEP) {
+                    const idx = (x + y * pg.width) * 4;
+                    if (pg.pixels[idx] > 128) {
+                        // 轉成 WEBGL 坐標中心
+                        textPoints.push({
+                            x: x - pg.width / 2,
+                            y: y - pg.height / 2
+                        });
+                    }
+                }
+            }
+        }
+
+        function enterConfessionMode(keepPlayingAudioEl) {
+            isConfessionMode = true;
+
+            // UI/相機淡出
+            $("ui").classList.add("hidden");
+            $("video").classList.add("hidden");
+
+            // 停止手勢 loop（告白模式不用）
+            stopHandLoop();
+
+            // 準備文字點位
+            prepareConfessionTextPoints();
+
+            // 把音樂「救」出來，確保卡片關掉後還在播
+            // 你指定的做法：appendChild 到 body
+            if (keepPlayingAudioEl) {
+                keepPlayingAudioEl.id = "bgm";
+                keepPlayingAudioEl.loop = true;
+                keepPlayingAudioEl.autoplay = true;
+
+                // 移出卡片 DOM（不然 cardWrap display none 可能會讓部分瀏覽器 pause）
+                document.body.appendChild(keepPlayingAudioEl);
+
+                // iOS/部分瀏覽器可能需要再 play 一次（已經點擊過按鈕/互動，通常 OK）
+                keepPlayingAudioEl.play().catch(() => {});
+            }
+
+            // 告白一開始也別讓它立刻回到手勢狀態
+            lastTriggerMs = millis();
+        }
+
+        /* ======================
+            P5 SETUP / DRAW
+        ====================== */
+        function setup() {
+            createCanvas(windowWidth, windowHeight, WEBGL);
+
+            // tree particles
+            particles = [];
+            for (let i = 0; i < 750; i++) particles.push(new TreeParticle());
+
+            // ornaments
+            initOrnaments(16);
+
+            // snow
+            snowflakes = [];
+            for (let i = 0; i < INITIAL_SNOW; i++) snowflakes.push(new SnowParticle(false));
+
+            $("btnClose").onclick = () => {
+                const audInCard = $("cardMediaBox").querySelector("audio");
+
+                // 目前顯示的是第幾張？（上一張已經被 cardCursor++ 過）
+                // 我們在 showCard 時用 order = cardCursor（然後 cardCursor++），所以關閉時：
+                const lastShownIndex = Math.max(0, cardCursor - 1); // 0..15
+
+                const isFinal = (lastShownIndex === CARD_COUNT - 1); // 第 16 張（index=15）
+
+                if (isFinal) {
+                    // 不要把音樂停掉，改成救出來繼續播
+                    // 注意：如果沒有 audio（檔案不存在）就直接進告白
+                    if (audInCard) {
+                        // 移之前先停止被 cardWrap 影響的狀態
+                        //（不強制 pause）
+                    }
+                } else {
+                    // 非最後一張：正常停止音樂
+                    if (audInCard) {
+                        audInCard.pause();
+                        audInCard.currentTime = 0;
+                    }
+                }
+
+                // 關閉卡片
+                $("cardWrap").style.display = "none";
+
+                if (lastTriggeredOrnament) lastTriggeredOrnament.reset();
+                activeOrnament = null;
+
+                if (isFinal) {
+                    // 進入告白模式：UI/video fade、樹緩下、雪暴增並排字
+                    enterConfessionMode(audInCard || null);
+
+                    // 卡片關掉後不回手勢追蹤（告白繼續播放動畫）
+                    cardOpen = false;
+                    $("cardWrap").classList.remove("noBlur");
+                    loop();
+                } else {
+                    // 回到一般模式
+                    resumeHandTrackingAfterCard();
+                }
+            };
+
+            $("btnUpload").onclick = () => $("fileInput").click();
+            $("fileInput").onchange = handleFileUpload;
+
+            initHands(false);
+            $("btnStart").onclick = () => {
+                $("tapToStart").style.display = "none";
+                initHands(true);
+            };
+        }
+
+        function draw() {
+            background(5, 7, 15);
+
+            /* ========= 雪：一般下雪 -> 告白爆雪 + 排字 ========= */
+            if (isConfessionMode && snowflakes.length < TARGET_SNOW) {
+                const add = Math.min(SNOW_ADD_PER_FRAME, TARGET_SNOW - snowflakes.length);
+                for (let i = 0; i < add; i++) {
+                    snowflakes.push(new SnowParticle(true));
+                }
+            }
+
+            push();
+            blendMode(ADD);
+            for (let i = 0; i < snowflakes.length; i++) {
+                if (isConfessionMode && textPoints.length > 0) {
+                    const pt = textPoints[i % textPoints.length];
+                    snowflakes[i].morphTo(pt.x, pt.y);
+                } else {
+                    snowflakes[i].update();
+                }
+                snowflakes[i].show();
+            }
+            blendMode(BLEND);
+            pop();
+
+            /* ========= camera / lights ========= */
+            camY = lerp(camY, 0, 0.05);
+            camZ = lerp(camZ, 850, 0.05);
+            camera(0, camY, camZ, 0, 0, 0, 0, 1, 0);
+
+            ambientLight(60);
+            pointLight(255, 255, 255, 0, -200, 200);
+
+            /* ========= tree motion ========= */
+            if (isConfessionMode) {
+                // 樹慢慢往下滑出畫面
+                treeYOffset = lerp(treeYOffset, 1000, 0.02);
+            }
+
+            rotY = lerp(rotY, targetRotY, 0.1);
+
+            /* ========= focus + fist trigger（只有一般模式） ========= */
+            if (!cardOpen && !isConfessionMode) {
+                const now = millis();
+
+                if (now - lastFocusSwitchMs >= FOCUS_INTERVAL_MS) {
+                    focusIndex = (focusIndex + 1) % ornaments.length;
+                    lastFocusSwitchMs = now;
+                }
+
+                const cooled = (now - lastTriggerMs) >= TRIGGER_COOLDOWN_MS;
+                const fistClenched = armed && cooled && (!fistPrev && fistNow);
+
+                if (fistClenched && !activeOrnament) {
+                    const o = ornaments[focusIndex];
+                    activeOrnament = o;
+                    lastTriggeredOrnament = o;
+                    lastTriggerMs = now;
+
+                    o.trigger(() => {
+                        // 固定順序：用 cardCursor 指向下一張
+                        const order = cardCursor;
+                        cardCursor++;
+                        showCard(order);
+
+                        activeOrnament = null;
+
+                        // 打開卡片視為冷卻
+                        lastTriggerMs = millis();
+                    });
+                }
+            }
+
+            /* ========= tree render ========= */
+            push();
+            translate(0, treeYOffset, 0);
+            scale(1.25);
+            rotateY(rotY + frameCount * 0.003);
+
+            // star
+            drawTopStarFancySmallGlow();
+
+            // tree sparkle particles
+            blendMode(ADD);
+            for (const p of particles) {
+                p.update();
+                p.show(activeOrnament ? 0.2 : 1.0);
+            }
+            blendMode(BLEND);
+
+            // ornaments (idle on tree)
+            for (let i = 0; i < ornaments.length; i++) {
+                ornaments[i].isFocused = (i === focusIndex && !activeOrnament && !isConfessionMode);
+                if (ornaments[i].state === "idle") ornaments[i].showOnTree();
+            }
+
+            pop();
+
+            // cinematic ornament
+            if (activeOrnament) {
+                activeOrnament.updateCinematic();
+                activeOrnament.showCinematic();
+            }
+
+            updateDebug();
+
+            // 把 prev 放在最後，避免本幀 onResults 更新後同幀觸發錯位
+            fistPrev = fistNow;
+        }
+
+        /* ======================
+            VISUALS: STAR
+        ====================== */
+        function drawStarShape2D(outerR, innerR) {
+            beginShape();
+            for (let i = 0; i < 10; i++) {
+                const ang = -HALF_PI + i * (TWO_PI / 10);
+                const r = (i % 2 === 0) ? outerR : innerR;
+                vertex(cos(ang) * r, sin(ang) * r);
+            }
+            endShape(CLOSE);
+        }
+
+        function drawTopStarFancySmallGlow() {
+            push();
+            translate(0, -335, 0);
+            rotateY(frameCount * 0.02);
+
+            const STAR_SCALE = 0.52;
+            scale(STAR_SCALE);
+
+            drawingContext.disable(drawingContext.DEPTH_TEST);
+
+            blendMode(ADD);
+            noStroke();
+
+            push();
+            translate(0, 0, -18);
+            rotateY(-rotY - frameCount * 0.003);
+            for (let i = 0; i < 7; i++) {
+                const s = 1.0 + i * 0.22;
+                push();
+                scale(s);
+                fill(255, 240, 190, 12 - i * 1.4);
+                plane(150, 150);
+                pop();
+            }
+            pop();
+
+            for (let i = 0; i < 4; i++) {
+                push();
+                const s = 1.10 + i * 0.16;
+                scale(s);
+                fill(255, 245, 210, 18 - i * 4);
+                drawStarShape2D(62, 26);
+                pop();
+            }
+
+            blendMode(BLEND);
+
+            push();
+            translate(0, 0, -6);
+            fill(200, 160, 30);
+            drawStarShape2D(58, 24);
+            pop();
+            push();
+            translate(0, 0, 6);
+            fill(255, 205, 0);
+            drawStarShape2D(58, 24);
+            pop();
+
+            push();
+            blendMode(ADD);
+            fill(255, 245, 200, 90);
+            sphere(7);
+            blendMode(BLEND);
+            pop();
+
+            drawingContext.enable(drawingContext.DEPTH_TEST);
+            pop();
+        }
+
+        /* ======================
+            PARTICLES / ORNAMENTS
+        ====================== */
+        class TreeParticle {
+            constructor() {
+                this.reset();
+            }
+            reset() {
+                const h = random(-300, 200);
+                const r = map(h, -300, 200, 0, 220);
+                const ang = random(TWO_PI);
+                this.pos = createVector(r * cos(ang), h, r * sin(ang));
+                this.twinkle = random(100);
+                this.col = color(random(["#fff7ae", "#ffd700", "#ff8c00"]));
+                this.sz = random(2, 4);
+            }
+            update() {
+                this.pos.x += sin(frameCount * 0.02 + this.twinkle) * 0.2;
+            }
+            show(a) {
+                const t = map(sin(frameCount * 0.1 + this.twinkle), -1, 1, 50, 255);
+                stroke(red(this.col), green(this.col), blue(this.col), t * a);
+                strokeWeight(this.sz);
+                point(this.pos.x, this.pos.y, this.pos.z);
+            }
+        }
+
+        class SnowParticle {
+            constructor(isExtra = false) {
+                // 在 WEBGL：y 正向是往下
+                this.pos = createVector(
+                    random(-width, width),
+                    isExtra ? random(-height, height) : random(-height * 0.6, -height * 0.2),
+                    random(-900, 120)
+                );
+                this.fall = random(0.05, 0.25);
+                this.wind = random(0.15, 0.75) * (random() < 0.5 ? -1 : 1);
+                this.phase = random(TWO_PI);
+                this.phaseSpeed = random(0.004, 0.012);
+
+                const depth = map(this.pos.z, -900, 120, 0.6, 2.2);
+                this.size = random(1.0, 2.6) * depth;
+                this.alpha = map(this.pos.z, -900, 120, 90, 220) + random(-15, 15);
+
+                // morph 用
+                this.morphStrength = random(0.028, 0.055);
+            }
+
+            update() {
+                const globalWind = sin(frameCount * 0.002) * 0.35;
+                this.phase += this.phaseSpeed;
+                this.pos.x += this.wind + globalWind + sin(this.phase) * 0.6;
+                this.pos.y += this.fall + cos(this.phase * 0.9) * 0.08;
+
+                if (this.pos.y > height * 0.62 || this.pos.x > width * 1.2 || this.pos.x < -width * 1.2) {
+                    // reset to top-ish
+                    this.pos.x = random(-width, width);
+                    this.pos.y = random(-height * 0.7, -height * 0.2);
+                    this.pos.z = random(-900, 120);
+                }
+            }
+
+            morphTo(tx, ty) {
+                // 目標平面：Z=200（你指定）
+                const target = createVector(tx, ty, 200);
+                this.pos.lerp(target, this.morphStrength);
+                this.size = lerp(this.size, 5, 0.04);
+                this.alpha = lerp(this.alpha, 230, 0.03);
+            }
+
+            show() {
+                push();
+                translate(this.pos.x, this.pos.y, this.pos.z);
+                noStroke();
+                fill(255, this.alpha);
+                sphere(this.size, 6, 6);
+                pop();
+            }
+        }
+
+        class Ornament {
+            constructor(id, y, theta, size, col) {
+                this.id = id;
+                this.y = y;
+                this.theta = theta;
+                this.size = size;
+                this.col = col;
+
+                this.state = "idle";
+                this.t = 0;
+                this.isFocused = false;
+
+                this.cinePos = createVector(0, 0, 0);
+            }
+
+            reset() {
+                this.state = "idle";
+                this.t = 0;
+                this.cinePos.set(0, 0, 0);
+            }
+
+            trigger(cb) {
+                this.state = "center";
+                this.t = 0;
+                this.onDone = cb;
+            }
+
+            showOnTree() {
+                const r = map(this.y, -300, 200, 0, 220) + 5;
+                push();
+                translate(r * cos(this.theta), this.y, r * sin(this.theta));
+
+                if (this.isFocused) {
+                    noFill();
+                    stroke(255, 200);
+                    strokeWeight(1);
+                    ellipse(0, 0, this.size * 2.5);
+                }
+
+                noStroke();
+                fill(this.col);
+                sphere(this.size * 0.6);
+                pop();
+            }
+
+            updateCinematic() {
+                this.t += 0.02 * ORNAMENT_CINE_SPEED;
+
+                if (this.state === "center") {
+                    this.cinePos.y = lerp(-100, 0, min(this.t * 2, 1));
+                    this.cinePos.z = 150;
+                    if (this.t > 0.8) {
+                        this.state = "drop";
+                        this.t = 0;
+                    }
+                } else if (this.state === "drop") {
+                    if (this.t > 0.6) {
+                        this.state = "done";
+                        if (this.onDone) this.onDone();
+                    }
+                }
+            }
+
+            showCinematic() {
+                push();
+                translate(this.cinePos.x, this.cinePos.y, this.cinePos.z);
+                fill(this.col);
+                noStroke();
+                sphere(this.size * 3);
+                pop();
+            }
+        }
+
+        function initOrnaments(n) {
+            ornaments = [];
+            colorMode(HSL, 360, 100, 100, 1);
+            for (let i = 0; i < n; i++) {
+                const y = lerp(-250, 150, i / n);
+                const hue = (i * (360 / n) + random(-8, 8) + 360) % 360;
+                const sat = random(78, 95);
+                const light = random(55, 72);
+                const col = color(hue, sat, light, 1);
+
+                ornaments.push(new Ornament(
+                    i, y, i * 2.4, random(18, 25), col
+                ));
+            }
+            colorMode(RGB, 255, 255, 255, 255);
+        }
+
+        /* ======================
+            CARD UI
+        ====================== */
+        async function showCard(orderIndex) {
+            pauseHandTrackingForCard();
+
+            const assets = getMemoryAssetsByOrder(orderIndex);
+            currentCardKey = assets.key;
+
+            $("cardTitle").textContent = `✨ Memory ${assets.key} ✨`;
+            $("cardMessage").innerHTML = `Dear Friend,<br><br><span style="color:#888">載入祝福訊息中...</span>`;
+
+            const override = overridesByKey.get(assets.key) || {};
+
+            try {
+                const msg = (override.txt != null) ? override.txt : await loadTxt(assets.txt);
+                $("cardMessage").innerHTML =
+                    `Dear Friend,<br><br>${escapeToHtml(msg)}<br><br>` +
+                    `<span style="float:right; color:var(--primary-red);">❤ With Love</span>`;
+            } catch (e) {
+                $("cardMessage").innerHTML =
+                    `Dear Friend,<br><br>${escapeToHtml("（找不到對應 txt，請確認 Live Server 與路徑）")}<br><br>` +
+                    `<span style="float:right; color:var(--primary-red);">❤ With Love</span>`;
+            }
+
+            const mb = $("cardMediaBox");
+            mb.innerHTML = "";
+
+            // media override（img/video）
+            if (override.media) {
+                const isVideo = (override.media.type || "").includes("video");
+                const el = document.createElement(isVideo ? "video" : "img");
+                el.src = override.media.url;
+                if (isVideo) {
+                    el.controls = true;
+                    el.autoplay = true;
+                }
+                mb.appendChild(el);
+            } else {
+                const imgEl = document.createElement("img");
+                imgEl.alt = "memory image";
+                imgEl.src = assets.img;
+                imgEl.onerror = () => {
+                    imgEl.remove();
+                    const p = document.createElement("p");
+                    p.style.color = "#999";
+                    p.textContent = `找不到圖片：${assets.img}`;
+                    mb.appendChild(p);
+                };
+                mb.appendChild(imgEl);
+            }
+
+            // audio (override or default)
+            const audioEl = document.createElement("audio");
+            audioEl.controls = true;
+            audioEl.autoplay = true;
+            audioEl.loop = true;
+            audioEl.src = override.audio ? override.audio.url : assets.audio;
+            audioEl.onerror = () => {
+                audioEl.remove();
+                const p = document.createElement("p");
+                p.style.color = "#999";
+                p.textContent = `找不到音樂：${override.audio ? "(uploaded)" : assets.audio}`;
+                mb.appendChild(p);
+            };
+            mb.appendChild(audioEl);
+
+            $("cardWrap").style.display = "flex";
+        }
+
+        async function handleFileUpload(e) {
+            const file = e.target.files[0];
+            if (!file || !currentCardKey) return;
+
+            const override = overridesByKey.get(currentCardKey) || {};
+
+            if (file.type.includes("text") || file.name.toLowerCase().endsWith(".txt")) {
+                override.txt = await file.text();
+            } else if (file.type.includes("audio")) {
+                override.audio = {
+                    url: URL.createObjectURL(file),
+                    type: file.type
+                };
+            } else {
+                override.media = {
+                    url: URL.createObjectURL(file),
+                    type: file.type
+                };
+            }
+
+            overridesByKey.set(currentCardKey, override);
+
+            // 立即刷新同一張卡（當前顯示的 orderIndex = cardCursor-1）
+            const currentShown = Math.max(0, cardCursor - 1);
+            showCard(currentShown);
+        }
+
+        /* ======================
+            HANDS INIT
+        ====================== */
+        async function initHands(force) {
+            if (hands && !force) return;
+
+            stopHandLoop();
+
+            const videoElement = $("video");
+            try {
+                camStream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: "user"
+                    },
+                    audio: false
+                });
+                videoElement.srcObject = camStream;
+            } catch (e) {
+                $("loading").style.display = "none";
+                $("tapToStart").style.display = "flex";
+                return;
+            }
+
+            hands = new Hands({
+                locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/${file}`
+            });
+
+            hands.setOptions({
+                maxNumHands: 1,
+                modelComplexity: 1,
+                minDetectionConfidence: 0.5,
+                minTrackingConfidence: 0.5,
+                selfieMode: true
+            });
+
+            hands.onResults((res) => {
+                $("loading").style.display = "none";
+                if (cardOpen || isConfessionMode) return;
+
+                const lms = res.multiHandLandmarks;
+                handCount = lms ? lms.length : 0;
+
+                // 不在這裡寫 fistPrev（prev 在 draw() 結尾做），避免同幀競態
+                if (handCount > 0) {
+                    const lm = lms[0];
+                    targetRotY = map(lm[9].x, 0, 1, 1.2, -1.2);
+                    armed = true;
+                    fistNow = isFist(lm);
+                } else {
+                    fistNow = false;
+                }
+            });
+
+            startHandLoop();
+        }
+
+        function updateDebug() {
+            const now = millis();
+            const cdLeft = Math.max(0, TRIGGER_COOLDOWN_MS - (now - lastTriggerMs));
+            $("debug").textContent =
+                `mode: ${isConfessionMode ? "CONFESSION" : "NORMAL"}\n` +
+                `Hands: ${handCount}\n` +
+                `Armed: ${armed ? "YES" : "NO"}\n` +
+                `Fist(prev→now): ${fistPrev ? "YES" : "NO"} → ${fistNow ? "YES" : "NO"}\n` +
+                `Cooldown(ms left): ${cdLeft.toFixed(0)} / ${TRIGGER_COOLDOWN_MS}\n` +
+                `snow: ${snowflakes.length} / ${isConfessionMode ? TARGET_SNOW : INITIAL_SNOW}\n` +
+                `cardCursor(next): ${cardCursor + 1} / ${CARD_COUNT}\n` +
+                `currentCardKey: ${currentCardKey || "-"}\n` +
+                `handLoop: ${loopRunning ? "ON" : "OFF"} | inFlight: ${handInFlight ? "YES" : "NO"}`;
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth, windowHeight);
+        }
+    </script>
+</body>
+
+</html>
